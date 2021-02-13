@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.808.7
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AISUTesttHarness", "AISUTesttHarness\AISUTesttHarness.csproj", "{67626B9B-A4C9-4D17-9E37-DE16673FCFE5}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{67626B9B-A4C9-4D17-9E37-DE16673FCFE5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{67626B9B-A4C9-4D17-9E37-DE16673FCFE5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{67626B9B-A4C9-4D17-9E37-DE16673FCFE5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{67626B9B-A4C9-4D17-9E37-DE16673FCFE5}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {47ADF526-B6C8-4092-8BA3-93677534B3B4}
+	EndGlobalSection
+EndGlobal

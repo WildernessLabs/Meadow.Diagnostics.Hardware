@@ -1,0 +1,27 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30717.126
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OLED128x32FeatherWing", "OLED128x32FeatherWing\OLED128x32FeatherWing.csproj", "{A7EC9844-EBE1-4D11-8A9D-41FFB9983BD0}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A7EC9844-EBE1-4D11-8A9D-41FFB9983BD0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A7EC9844-EBE1-4D11-8A9D-41FFB9983BD0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A7EC9844-EBE1-4D11-8A9D-41FFB9983BD0}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{A7EC9844-EBE1-4D11-8A9D-41FFB9983BD0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A7EC9844-EBE1-4D11-8A9D-41FFB9983BD0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A7EC9844-EBE1-4D11-8A9D-41FFB9983BD0}.Release|Any CPU.Deploy.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {E409AC25-6F97-45D1-A687-0BA7BD2A4305}
+	EndGlobalSection
+EndGlobal

@@ -1,6 +1,7 @@
 <Project Sdk="Meadow.Sdk/1.1.0">
   <PropertyGroup>
-    <TargetFramework>net472</TargetFramework>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <OutputType>Exe</OutputType>
     <AssemblyName>App</AssemblyName>
   </PropertyGroup>
@@ -10,5 +11,9 @@
     <ProjectReference Include="..\..\..\..\meadow.foundation\Source\Meadow.Foundation.Peripherals\Displays.Ssd130x\Driver\Displays.Ssd130x\Displays.Ssd130x.csproj" />
     <ProjectReference Include="..\..\..\..\meadow.foundation\Source\Meadow.Foundation.Peripherals\Displays.TftSpi\Driver\Displays.TFTSPI\Displays.TftSpi.csproj" />
     <ProjectReference Include="..\..\..\..\meadow.foundation\Source\Meadow.Foundation.Peripherals\ICs.EEPROM.AT24Cxx\Driver\ICs.EEPROM.AT24Cxx\ICs.EEPROM.AT24Cxx.csproj" />
+    <ProjectReference Include="..\..\..\..\Meadow.Core\source\Meadow.F7\Meadow.F7.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="WildernessLabs.Meadow.Assemblies" Version="0.7.3.26" />
   </ItemGroup>
 </Project>

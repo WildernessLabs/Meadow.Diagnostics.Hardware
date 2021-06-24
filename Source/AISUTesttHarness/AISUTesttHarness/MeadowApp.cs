@@ -4,8 +4,8 @@ using System.Threading;
 using Meadow;
 using Meadow.Devices;
 using Meadow.Foundation;
-using Meadow.Foundation.Displays;
-using Meadow.Foundation.Displays.Tft;
+using Meadow.Foundation.Displays.Ssd130x;
+using Meadow.Foundation.Displays.TftSpi;
 using Meadow.Foundation.Graphics;
 using Meadow.Foundation.ICs.EEPROM;
 using Meadow.Foundation.Leds;
@@ -40,7 +40,7 @@ namespace MeadowApp
                 UpdateI2C("Reading temperature");
                 UpdateSPIDisplay();
                 
-                Thread.Sleep(1000);
+                Thread.Sleep(100);
             }
         }
 
@@ -48,11 +48,11 @@ namespace MeadowApp
         {
             graphicsSpi.Clear();
 
-            graphicsSpi.DrawRectangle(0, 0, 240, 240, Color.AliceBlue);
+            graphicsSpi.DrawRectangle(0, 0, 240, 240, Color.LawnGreen);
 
             for(int i = 0; i < 6; i++)
             {
-                graphicsSpi.DrawText(5, i * 20 + 5, $"Analog {i+1}: {tempSensors[0].Temperature:0.00}°F");
+                graphicsSpi.DrawText(5, i * 20 + 5, $"Analog {i+1}: {tempSensors[i].Temperature?.Celsius:0.00}°C");
             }
 
             graphicsSpi.DrawText(5, 8 * 20 + 5, "I2C eeprom " + (isAt24CI2cWorking ? "passed" : "failed"));
@@ -67,7 +67,7 @@ namespace MeadowApp
             Console.WriteLine($"{message1} {message2}");
 
             graphicsI2c.Clear();
-            graphicsI2c.DrawText(0, 0, "Meadow B4.5 " + DateTime.Now.ToLongTimeString());
+            graphicsI2c.DrawText(0, 0, "Meadow B5.0.2 " + DateTime.Now.ToLongTimeString());
             graphicsI2c.DrawText(0, 8, message1);
             graphicsI2c.DrawText(0, 16, message2);
             graphicsI2c.DrawText(0, 24, "Analog/I2C/SPI/UART v1.c");
@@ -77,7 +77,7 @@ namespace MeadowApp
 
         void Initialize()
         {
-            Console.WriteLine("Initialize hardware...");
+            Console.WriteLine("Initialize hardware ...");
             Console.WriteLine("Intialize SSD1306");
             var i2cBus = Device.CreateI2cBus();
             var ssd1306 = new Ssd1306(i2cBus, 60, Ssd1306.DisplayType.OLED128x32);

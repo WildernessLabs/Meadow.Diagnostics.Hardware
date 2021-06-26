@@ -67,7 +67,7 @@ namespace MeadowApp
             Console.WriteLine($"{message1} {message2}");
 
             graphicsI2c.Clear();
-            graphicsI2c.DrawText(0, 0, "Meadow B5.0.2 " + DateTime.Now.ToLongTimeString());
+            graphicsI2c.DrawText(0, 0, "Meadow B5.1.0 " + DateTime.Now.ToLongTimeString());
             graphicsI2c.DrawText(0, 8, message1);
             graphicsI2c.DrawText(0, 16, message2);
             graphicsI2c.DrawText(0, 24, "Analog/I2C/SPI/UART v1.c");
@@ -136,6 +136,9 @@ namespace MeadowApp
             //DC 11
 
             UpdateI2C("Init temp sensors");
+
+       //     tempSensors[0] = new AnalogTemperature()
+
             tempSensors[0] = new AnalogTemperature(Device.CreateAnalogInputPort(Device.Pins.A00), AnalogTemperature.KnownSensorType.LM35);
             tempSensors[1] = new AnalogTemperature(Device.CreateAnalogInputPort(Device.Pins.A01), AnalogTemperature.KnownSensorType.LM35);
             tempSensors[2] = new AnalogTemperature(Device.CreateAnalogInputPort(Device.Pins.A02), AnalogTemperature.KnownSensorType.LM35);
@@ -143,12 +146,12 @@ namespace MeadowApp
             tempSensors[4] = new AnalogTemperature(Device.CreateAnalogInputPort(Device.Pins.A04), AnalogTemperature.KnownSensorType.LM35);
             tempSensors[5] = new AnalogTemperature(Device.CreateAnalogInputPort(Device.Pins.A05), AnalogTemperature.KnownSensorType.LM35);
 
-            tempSensors[0].StartUpdating();
-            tempSensors[1].StartUpdating();
-            tempSensors[2].StartUpdating();
-            tempSensors[3].StartUpdating();
-            tempSensors[4].StartUpdating();
-            tempSensors[5].StartUpdating();
+            tempSensors[0].StartUpdating(new TimeSpan(0, 0, 5));
+            tempSensors[1].StartUpdating(new TimeSpan(0, 0, 5));
+            tempSensors[2].StartUpdating(new TimeSpan(0, 0, 5));
+            tempSensors[3].StartUpdating(new TimeSpan(0, 0, 5));
+            tempSensors[4].StartUpdating(new TimeSpan(0, 0, 5)); 
+            tempSensors[5].StartUpdating(new TimeSpan(0, 0, 5));
         }
     }
 }

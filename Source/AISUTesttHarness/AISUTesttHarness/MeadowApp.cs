@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
+using AISUTesttHarness;
+using AISUTesttHarness.Models;
 using Meadow;
 using Meadow.Devices;
 using Meadow.Foundation;
@@ -11,6 +14,7 @@ using Meadow.Foundation.ICs.EEPROM;
 using Meadow.Foundation.Leds;
 using Meadow.Foundation.Sensors.Temperature;
 using Meadow.Hardware;
+using Newtonsoft.Json;
 using static Meadow.Foundation.Displays.DisplayBase;
 
 namespace MeadowApp
@@ -27,7 +31,9 @@ namespace MeadowApp
         bool isAt24CI2cWorking = false;
         bool isAt24CSpiWorking = false;
 
-        AnalogTemperature[] tempSensors = new AnalogTemperature[8];
+        AnalogTemperature[] tempSensors = new AnalogTemperature[6];
+
+        IAnalogInputPort[] analogPorts = new IAnalogInputPort[6];
 
         public MeadowApp()
         {
@@ -44,6 +50,21 @@ namespace MeadowApp
             }
         }
 
+        void JsonTest()
+        {
+
+            Product product = new Product()
+            {
+                Name = "Meadow",
+                ExpiryDate = new DateTime(2099, 1, 20),
+                Price = 34.99
+            };
+
+            string output = JsonConvert.SerializeObject(product);
+
+            Product deserializedProduct = JsonConvert.DeserializeObject<Product>(output);
+        }
+
         void UpdateSPIDisplay()
         {
             graphicsSpi.Clear();
@@ -52,6 +73,7 @@ namespace MeadowApp
 
             for(int i = 0; i < 6; i++)
             {
+               // graphicsSpi.DrawText(5, i * 20 + 5, ${ tempSensors[i].Po}
                 graphicsSpi.DrawText(5, i * 20 + 5, $"Analog {i+1}: {tempSensors[i].Temperature?.Celsius:0.00}°C");
             }
 
@@ -64,25 +86,31 @@ namespace MeadowApp
 
         void UpdateI2C(string message1 = "", string message2 = "")
         {
-            Console.WriteLine($"{message1} {message2}");
+            Console.WriteLine($"{message1} {message2} {DateTime.Now}");
 
             graphicsI2c.Clear();
-            graphicsI2c.DrawText(0, 0, "Meadow B5.1.0 " + DateTime.Now.ToLongTimeString());
+            graphicsI2c.DrawText(0, 0, "Meadow B5.1 " + DateTime.Now.ToLongTimeString());
             graphicsI2c.DrawText(0, 8, message1);
             graphicsI2c.DrawText(0, 16, message2);
-            graphicsI2c.DrawText(0, 24, "Analog/I2C/SPI/UART v1.c");
+            graphicsI2c.DrawText(0, 24, "Analog/I2C/SPI/UART");
 
             graphicsI2c.Show();
         }
 
         void Initialize()
         {
+            Console.WriteLine("Update time (async)");
+            _ = UpdateClock();
+
             Console.WriteLine("Initialize hardware ...");
             Console.WriteLine("Intialize SSD1306");
             var i2cBus = Device.CreateI2cBus();
-            var ssd1306 = new Ssd1306(i2cBus, 60, Ssd1306.DisplayType.OLED128x32);
+            var ssd1306 = new Ssd1306(i2cBus, 60, Ssd1306.DisplayType.OLED128x32)
+            {
+                IgnoreOutOfBoundsPixels = true
+            };
             graphicsI2c = new GraphicsLibrary(ssd1306);
-            graphicsI2c.CurrentFont = new Font4x8();
+            graphicsI2c.CurrentFont = new Font6x8();
 
             UpdateI2C("Init onboard RGB led");
 
@@ -137,21 +165,33 @@ namespace MeadowApp
 
             UpdateI2C("Init temp sensors");
 
-       //     tempSensors[0] = new AnalogTemperature()
+            //     tempSensors[0] = new AnalogTemperature()
+            analogPorts[0] = Device.CreateAnalogInputPort(Device.Pins.A00);
+            analogPorts[1] = Device.CreateAnalogInputPort(Device.Pins.A01);
+            analogPorts[2] = Device.CreateAnalogInputPort(Device.Pins.A02);
+            analogPorts[3] = Device.CreateAnalogInputPort(Device.Pins.A03);
+            analogPorts[4] = Device.CreateAnalogInputPort(Device.Pins.A04);
+            analogPorts[5] = Device.CreateAnalogInputPort(Device.Pins.A05);
+            
+            for (int i = 0; i < 6; i++)
+            {
+                tempSensors[i] = new AnalogTemperature(analogPorts[i], AnalogTemperature.KnownSensorType.TMP235);
+                tempSensors[i].StartUpdating(new TimeSpan(0, 0, 5));
+            }
 
-            tempSensors[0] = new AnalogTemperature(Device.CreateAnalogInputPort(Device.Pins.A00), AnalogTemperature.KnownSensorType.LM35);
-            tempSensors[1] = new AnalogTemperature(Device.CreateAnalogInputPort(Device.Pins.A01), AnalogTemperature.KnownSensorType.LM35);
-            tempSensors[2] = new AnalogTemperature(Device.CreateAnalogInputPort(Device.Pins.A02), AnalogTemperature.KnownSensorType.LM35);
-            tempSensors[3] = new AnalogTemperature(Device.CreateAnalogInputPort(Device.Pins.A03), AnalogTemperature.KnownSensorType.LM35);
-            tempSensors[4] = new AnalogTemperature(Device.CreateAnalogInputPort(Device.Pins.A04), AnalogTemperature.KnownSensorType.LM35);
-            tempSensors[5] = new AnalogTemperature(Device.CreateAnalogInputPort(Device.Pins.A05), AnalogTemperature.KnownSensorType.LM35);
+           // UpdateI2C("Test Json deserialize");
+           // JsonTest();
+        }
 
-            tempSensors[0].StartUpdating(new TimeSpan(0, 0, 5));
-            tempSensors[1].StartUpdating(new TimeSpan(0, 0, 5));
-            tempSensors[2].StartUpdating(new TimeSpan(0, 0, 5));
-            tempSensors[3].StartUpdating(new TimeSpan(0, 0, 5));
-            tempSensors[4].StartUpdating(new TimeSpan(0, 0, 5)); 
-            tempSensors[5].StartUpdating(new TimeSpan(0, 0, 5));
+        async Task UpdateClock()
+        {
+            await Device.InitWiFiAdapter();
+
+            var result = await Device.WiFiAdapter.Connect(Secrets.WIFI_NAME, Secrets.WIFI_PASSWORD);
+
+            var today = await ClockService.GetTime();
+
+            MeadowApp.Device.SetClock(today.Subtract(new TimeSpan(7, 0, 0)));
         }
     }
 }

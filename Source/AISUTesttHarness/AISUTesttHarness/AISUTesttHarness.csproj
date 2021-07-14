@@ -13,7 +13,4 @@
     <ProjectReference Include="..\..\..\..\meadow.foundation\Source\Meadow.Foundation.Peripherals\ICs.EEPROM.AT24Cxx\Driver\ICs.EEPROM.AT24Cxx\ICs.EEPROM.AT24Cxx.csproj" />
     <ProjectReference Include="..\..\..\..\Meadow.Core\source\Meadow.F7\Meadow.F7.csproj" />
   </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="WildernessLabs.Meadow.Assemblies" Version="0.7.3.26" />
-  </ItemGroup>
 </Project>

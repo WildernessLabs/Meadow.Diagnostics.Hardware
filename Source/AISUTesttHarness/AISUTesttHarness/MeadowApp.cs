@@ -1,8 +1,4 @@
-﻿using System;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using AISUTesttHarness;
+﻿using AISUTesttHarness;
 using AISUTesttHarness.Models;
 using Meadow;
 using Meadow.Devices;
@@ -12,10 +8,14 @@ using Meadow.Foundation.Displays.TftSpi;
 using Meadow.Foundation.Graphics;
 using Meadow.Foundation.ICs.EEPROM;
 using Meadow.Foundation.Leds;
+using Meadow.Foundation.Sensors.Buttons;
 using Meadow.Foundation.Sensors.Temperature;
 using Meadow.Hardware;
 using Newtonsoft.Json;
-using static Meadow.Foundation.Displays.DisplayBase;
+using System;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace MeadowApp
 {
@@ -30,6 +30,11 @@ namespace MeadowApp
         At24Cxx at24CSpi;
         IAnalogInputPort[] analogPorts = new IAnalogInputPort[6];
 
+        //==== push buttons
+        PushButton button1;
+        PushButton button2;
+        PushButton button3;
+
         //==== state
         bool i2cIsWorking = false;
         bool spiIsWorking = false;
@@ -37,9 +42,8 @@ namespace MeadowApp
         bool spiAt24cIsWorking = false;
 
         //==== graphics
-        GraphicsLibrary graphicsI2c;
-        GraphicsLibrary graphicsSpi;
-
+        MicroGraphics graphicsI2c;
+        MicroGraphics graphicsSpi;
 
         public MeadowApp()
         {
@@ -60,7 +64,6 @@ namespace MeadowApp
 
         void JsonTest()
         {
-
             Product product = new Product()
             {
                 Name = "Meadow",
@@ -118,20 +121,25 @@ namespace MeadowApp
 
             //---- I2C Bus
             II2cBus i2cBus = null;
-            try {
+            try 
+            {
                 i2cBus = Device.CreateI2cBus();
                 i2cIsWorking = true;
 
-            } catch (Exception e) {
+            } 
+            catch (Exception e) 
+            {
                 Console.WriteLine($" Failed to initialize I2C. Err: {e.Message}");
             }
 
             //---- I2C Display
-            if (i2cIsWorking) {
-                var ssd1306 = new Ssd1306(i2cBus, 60, Ssd1306.DisplayType.OLED128x32) {
+            if (i2cIsWorking) 
+            {
+                var ssd1306 = new Ssd1306(i2cBus, 60, Ssd1306.DisplayType.OLED128x32) 
+                {
                     IgnoreOutOfBoundsPixels = true
                 };
-                graphicsI2c = new GraphicsLibrary(ssd1306);
+                graphicsI2c = new MicroGraphics(ssd1306);
                 graphicsI2c.CurrentFont = new Font6x8();
 
             }
@@ -142,46 +150,78 @@ namespace MeadowApp
             onboardLed = new RgbPwmLed(device: Device,
                 redPwmPin: Device.Pins.OnboardLedRed,
                 greenPwmPin: Device.Pins.OnboardLedGreen,
-                bluePwmPin: Device.Pins.OnboardLedBlue,
-                3.3f, 3.3f, 3.3f,
-                Meadow.Peripherals.Leds.IRgbLed.CommonType.CommonAnode);
+                bluePwmPin: Device.Pins.OnboardLedBlue);
 
             onboardLed.StartPulse(Color.Purple, 3000);
+
+            //---- buttons
+            button1 = new PushButton(
+                device: Device,
+                inputPin: Device.Pins.D02,
+                resistorMode: ResistorMode.InternalPullDown);
+            button1.Clicked += (s, e) =>
+            {
+                Console.WriteLine("Button 1 Clicked");
+            };
+
+            button2 = new PushButton(
+                device: Device,
+                inputPin: Device.Pins.D06,
+                resistorMode: ResistorMode.InternalPullDown);
+            button2.Clicked += (s, e) =>
+            {
+                Console.WriteLine("Button 2 Clicked");
+            };
+
+            button3 = new PushButton(
+                device: Device,
+                inputPin: Device.Pins.D09,
+                resistorMode: ResistorMode.InternalPullDown);
+            button3.Clicked += (s, e) =>
+            {
+                Console.WriteLine("Button 3 Clicked");
+            };
 
             //---- SPI Bus
             UpdateI2C("Init SPI bus");
             ISpiBus spiBus = null;
-            try {
+            try 
+            {
                 var spiConfig = new SpiClockConfiguration(24000, SpiClockConfiguration.Mode.Mode3);
                 spiBus = Device.CreateSpiBus(Device.Pins.SCK, Device.Pins.MOSI, Device.Pins.MISO, spiConfig);
                 spiIsWorking = true;
-
-            } catch (Exception e) {
+            } 
+            catch (Exception e) 
+            {
                 Console.WriteLine($" Failed to initialize I2C. Err: {e.Message}");
             }
 
             //---- SPI Display
-            if (spiIsWorking) {
+            if (spiIsWorking) 
+            {
                 UpdateI2C("Init color display", "ST7789 240x240");
                 var st7789 = new St7789(device: Device, spiBus: spiBus,
                     chipSelectPin: Device.Pins.D15,
                     dcPin: Device.Pins.D11,
                     resetPin: Device.Pins.D14,
-                    width: 240, height: 240, displayColorMode: DisplayColorMode.Format12bppRgb444);
+                    width: 240, height: 240, 
+                    displayColorMode: ColorType.Format12bppRgb444);
 
-                graphicsSpi = new GraphicsLibrary(st7789);
+                graphicsSpi = new MicroGraphics(st7789);
                 graphicsSpi.CurrentFont = new Font12x20();
-                graphicsSpi.Rotation = GraphicsLibrary.RotationType._180Degrees;
+                graphicsSpi.Rotation = RotationType._180Degrees;
             }
 
             //---- I2C EEPROM
-            if (i2cIsWorking) {
+            if (i2cIsWorking) 
+            {
                 UpdateI2C("Init I2C EEPROM");
                 at24CI2c = new At24Cxx(i2cBus);
             }
 
             //---- SPI EEPROM
-            if (spiIsWorking) {
+            if (spiIsWorking) 
+            {
                 // TODO: Driver doesn't support SPI yet.
                 //UpdateI2C("Init SPI EEPROM");
                 //at24CSpi = new At24Cxx()
@@ -191,8 +231,14 @@ namespace MeadowApp
             UpdateI2C("Init temp sensors");
 
             // pins
-            IPin[] analogPins = new IPin[] {
-                Device.Pins.A00, Device.Pins.A01, Device.Pins.A02, Device.Pins.A03, Device.Pins.A04, Device.Pins.A05
+            var analogPins = new IPin[] 
+            {
+                Device.Pins.A00, 
+                Device.Pins.A01, 
+                Device.Pins.A02, 
+                Device.Pins.A03, 
+                Device.Pins.A04, 
+                Device.Pins.A05
             };
 
             // instantiate the temp sensors
@@ -208,8 +254,6 @@ namespace MeadowApp
 
         async Task UpdateClock()
         {
-            await Device.InitWiFiAdapter();
-
             var result = await Device.WiFiAdapter.Connect(Secrets.WIFI_NAME, Secrets.WIFI_PASSWORD);
 
             var today = await ClockService.GetTime();
@@ -217,7 +261,7 @@ namespace MeadowApp
             MeadowApp.Device.SetClock(today.Subtract(new TimeSpan(7, 0, 0)));
         }
 
-        protected bool ValidateI2cEeprom()
+        bool ValidateI2cEeprom()
         {
             UpdateI2C("Write to I2C eeprom");
             var data = new byte[] { 0, 1, 2, 3, 5, 7, 11, 13, 17, 23, 29, 31, 37, 43, 53, 59 };
@@ -237,7 +281,5 @@ namespace MeadowApp
 
             return i2cAt24cIsWorking;
         }
-
-
     }
 }

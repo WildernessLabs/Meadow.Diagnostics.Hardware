@@ -102,7 +102,7 @@ namespace MeadowApp
             if (i2cIsWorking) {
 
                 graphicsI2c.Clear();
-                graphicsI2c.DrawText(0, 0, "Meadow B5.1 " + DateTime.Now.ToLongTimeString());
+                graphicsI2c.DrawText(0, 0, "Meadow B6.0.1 " + DateTime.Now.ToLongTimeString());
                 graphicsI2c.DrawText(0, 8, message1);
                 graphicsI2c.DrawText(0, 16, message2);
                 graphicsI2c.DrawText(0, 24, "Analog/I2C/SPI/UART");
@@ -187,7 +187,7 @@ namespace MeadowApp
             ISpiBus spiBus = null;
             try 
             {
-                var spiConfig = new SpiClockConfiguration(24000, SpiClockConfiguration.Mode.Mode3);
+                var spiConfig = new SpiClockConfiguration(new Meadow.Units.Frequency(48000, Meadow.Units.Frequency.UnitType.Kilohertz), SpiClockConfiguration.Mode.Mode3);
                 spiBus = Device.CreateSpiBus(Device.Pins.SCK, Device.Pins.MOSI, Device.Pins.MISO, spiConfig);
                 spiIsWorking = true;
             } 

@@ -152,8 +152,6 @@ namespace MeadowApp
                 greenPwmPin: Device.Pins.OnboardLedGreen,
                 bluePwmPin: Device.Pins.OnboardLedBlue);
 
-            onboardLed.StartPulse(Color.Purple, 3000);
-
             //---- buttons
             button1 = new PushButton(
                 device: Device,

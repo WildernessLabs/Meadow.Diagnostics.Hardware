@@ -1,17 +1,14 @@
 ﻿using AISUTesttHarness;
-using AISUTesttHarness.Models;
 using Meadow;
 using Meadow.Devices;
 using Meadow.Foundation;
-using Meadow.Foundation.Displays.Ssd130x;
-using Meadow.Foundation.Displays.TftSpi;
+using Meadow.Foundation.Displays;
 using Meadow.Foundation.Graphics;
 using Meadow.Foundation.ICs.EEPROM;
 using Meadow.Foundation.Leds;
 using Meadow.Foundation.Sensors.Buttons;
 using Meadow.Foundation.Sensors.Temperature;
 using Meadow.Hardware;
-using Newtonsoft.Json;
 using System;
 using System.Linq;
 using System.Threading;
@@ -19,7 +16,7 @@ using System.Threading.Tasks;
 
 namespace MeadowApp
 {
-    public class MeadowApp : App<F7FeatherV2, MeadowApp>
+    public class MeadowApp : App<F7FeatherV1>
     {
         //==== ports and such
         RgbPwmLed onboardLed;
@@ -45,10 +42,8 @@ namespace MeadowApp
         MicroGraphics graphicsI2c;
         MicroGraphics graphicsSpi;
 
-        public MeadowApp()
+        public override Task Run()
         {
-            Initialize();
-
             ValidateI2cEeprom();
 
             UpdateSPIDisplay();
@@ -64,6 +59,7 @@ namespace MeadowApp
 
         void JsonTest()
         {
+            /*
             Product product = new Product()
             {
                 Name = "Meadow",
@@ -74,6 +70,7 @@ namespace MeadowApp
             string output = JsonConvert.SerializeObject(product);
 
             Product deserializedProduct = JsonConvert.DeserializeObject<Product>(output);
+            */
         }
 
         void UpdateSPIDisplay()
@@ -111,7 +108,7 @@ namespace MeadowApp
             }
         }
 
-        void Initialize()
+        public override Task Initialize()
         {
             Console.WriteLine("Update time (async)");
             _ = UpdateClock();
@@ -135,11 +132,11 @@ namespace MeadowApp
             //---- I2C Display
             if (i2cIsWorking) 
             {
-                var ssd1306 = new Ssd1306(i2cBus, 60, Ssd1306.DisplayType.OLED128x32) 
+                var ssd1306 = new Ssd1306(i2cBus, 60, Ssd1306.DisplayType.OLED128x32);
+                graphicsI2c = new MicroGraphics(ssd1306)
                 {
-                    IgnoreOutOfBoundsPixels = true
+                    IgnoreOutOfBoundsPixels = true,
                 };
-                graphicsI2c = new MicroGraphics(ssd1306);
                 graphicsI2c.CurrentFont = new Font6x8();
 
             }
@@ -203,7 +200,7 @@ namespace MeadowApp
                     dcPin: Device.Pins.D11,
                     resetPin: Device.Pins.D14,
                     width: 240, height: 240, 
-                    displayColorMode: ColorType.Format12bppRgb444);
+                    colorMode: ColorType.Format12bppRgb444);
 
                 graphicsSpi = new MicroGraphics(st7789);
                 graphicsSpi.CurrentFont = new Font12x20();
@@ -246,13 +243,17 @@ namespace MeadowApp
                 tempSensors[i].StartUpdating(new TimeSpan(0, 0, 5));
             }
 
-           // UpdateI2C("Test Json deserialize");
-           // JsonTest();
+            // UpdateI2C("Test Json deserialize");
+            // JsonTest();
+
+            return base.Initialize();
         }
 
         async Task UpdateClock()
         {
-            var result = await Device.WiFiAdapter.Connect(Secrets.WIFI_NAME, Secrets.WIFI_PASSWORD);
+             var adapter = Device.NetworkAdapters.Primary<IWiFiNetworkAdapter>();
+
+            var result = await adapter.Connect(Secrets.WIFI_NAME, Secrets.WIFI_PASSWORD);
 
             var today = await ClockService.GetTime();
 

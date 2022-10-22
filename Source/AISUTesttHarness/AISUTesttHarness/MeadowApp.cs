@@ -99,7 +99,7 @@ namespace MeadowApp
             if (i2cIsWorking) {
 
                 graphicsI2c.Clear();
-                graphicsI2c.DrawText(0, 0, "Meadow B6.0.1 " + DateTime.Now.ToLongTimeString());
+                graphicsI2c.DrawText(0, 0, "Meadow F7" + DateTime.Now.ToLongTimeString());
                 graphicsI2c.DrawText(0, 8, message1);
                 graphicsI2c.DrawText(0, 16, message2);
                 graphicsI2c.DrawText(0, 24, "Analog/I2C/SPI/UART");

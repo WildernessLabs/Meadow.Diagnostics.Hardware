@@ -20,4 +20,9 @@
     <ProjectReference Include="..\..\..\..\Meadow.Logging\lib\Meadow.Logging.csproj" />
     <ProjectReference Include="..\..\..\..\Meadow.Units\Source\Meadow.Units\Meadow.Units.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <None Update="Meadow.Config.Yaml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
 </Project>

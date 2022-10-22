@@ -21,7 +21,7 @@
     <ProjectReference Include="..\..\..\..\Meadow.Units\Source\Meadow.Units\Meadow.Units.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <None Update="Meadow.Config.Yaml">
+    <None Update="meadow.config.yaml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>

@@ -16,7 +16,7 @@ using System.Threading.Tasks;
 
 namespace MeadowApp
 {
-    public class MeadowApp : App<F7FeatherV1>
+    public class MeadowApp : App<F7FeatherV2>
     {
         //==== ports and such
         RgbPwmLed onboardLed;
@@ -28,7 +28,7 @@ namespace MeadowApp
         IAnalogInputPort[] analogPorts = new IAnalogInputPort[6];
 
         //==== push buttons
-        PushButton button1;
+        //PushButton button1;
         PushButton button2;
         PushButton button3;
 
@@ -150,14 +150,14 @@ namespace MeadowApp
                 bluePwmPin: Device.Pins.OnboardLedBlue);
 
             //---- buttons
-            button1 = new PushButton(
-                device: Device,
-                inputPin: Device.Pins.D02,
-                resistorMode: ResistorMode.InternalPullDown);
-            button1.Clicked += (s, e) =>
-            {
-                Console.WriteLine("Button 1 Clicked");
-            };
+            //button1 = new PushButton(
+            //    device: Device,
+            //    inputPin: Device.Pins.D02,
+            //    resistorMode: ResistorMode.InternalPullDown);
+            //button1.Clicked += (s, e) =>
+            //{
+            //    Console.WriteLine("Button 1 Clicked");
+            //};
 
             button2 = new PushButton(
                 device: Device,

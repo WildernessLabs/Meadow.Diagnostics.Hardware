@@ -81,7 +81,6 @@ namespace MeadowApp
 
             for(int i = 0; i < 6; i++)
             {
-               // graphicsSpi.DrawText(5, i * 20 + 5, ${ tempSensors[i].Po}
                 graphicsSpi.DrawText(5, i * 20 + 5, $"Analog {i+1}: {tempSensors[i].Temperature?.Celsius:0.00}°C");
             }
 
@@ -144,7 +143,7 @@ namespace MeadowApp
             //---- onboard LED
             UpdateI2C("Init onboard RGB led");
 
-            onboardLed = new RgbPwmLed(device: Device,
+            onboardLed = new RgbPwmLed(
                 redPwmPin: Device.Pins.OnboardLedRed,
                 greenPwmPin: Device.Pins.OnboardLedGreen,
                 bluePwmPin: Device.Pins.OnboardLedBlue);
@@ -160,7 +159,6 @@ namespace MeadowApp
             //};
 
             button2 = new PushButton(
-                device: Device,
                 inputPin: Device.Pins.D06,
                 resistorMode: ResistorMode.InternalPullDown);
             button2.Clicked += (s, e) =>
@@ -169,7 +167,6 @@ namespace MeadowApp
             };
 
             button3 = new PushButton(
-                device: Device,
                 inputPin: Device.Pins.D09,
                 resistorMode: ResistorMode.InternalPullDown);
             button3.Clicked += (s, e) =>
@@ -195,12 +192,12 @@ namespace MeadowApp
             if (spiIsWorking) 
             {
                 UpdateI2C("Init color display", "ST7789 240x240");
-                var st7789 = new St7789(device: Device, spiBus: spiBus,
+                var st7789 = new St7789(spiBus: spiBus,
                     chipSelectPin: Device.Pins.D15,
                     dcPin: Device.Pins.D11,
                     resetPin: Device.Pins.D14,
                     width: 240, height: 240, 
-                    colorMode: ColorType.Format12bppRgb444);
+                    colorMode: ColorMode.Format12bppRgb444);
 
                 graphicsSpi = new MicroGraphics(st7789);
                 graphicsSpi.CurrentFont = new Font12x20();
@@ -239,7 +236,7 @@ namespace MeadowApp
             // instantiate the temp sensors
             for (int i = 0; i < 6; i++)
             {
-                tempSensors[i] = new AnalogTemperature(Device, analogPins[i], AnalogTemperature.KnownSensorType.TMP235);
+                tempSensors[i] = new AnalogTemperature(analogPins[i], AnalogTemperature.KnownSensorType.TMP235);
                 tempSensors[i].StartUpdating(new TimeSpan(0, 0, 5));
             }
 
@@ -253,11 +250,11 @@ namespace MeadowApp
         {
              var adapter = Device.NetworkAdapters.Primary<IWiFiNetworkAdapter>();
 
-            var result = await adapter.Connect(Secrets.WIFI_NAME, Secrets.WIFI_PASSWORD);
+            await adapter.Connect(Secrets.WIFI_NAME, Secrets.WIFI_PASSWORD);
 
             var today = await ClockService.GetTime();
 
-            MeadowApp.Device.SetClock(today.Subtract(new TimeSpan(7, 0, 0)));
+            Device.PlatformOS.SetClock(today.Subtract(new TimeSpan(7, 0, 0)));
         }
 
         bool ValidateI2cEeprom()

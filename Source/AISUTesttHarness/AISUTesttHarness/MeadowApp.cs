@@ -25,10 +25,9 @@ namespace MeadowApp
         //==== drivers
         At24Cxx at24CI2c;
         At24Cxx at24CSpi;
-        IAnalogInputPort[] analogPorts = new IAnalogInputPort[6];
 
         //==== push buttons
-        //PushButton button1;
+        PushButton button1;
         PushButton button2;
         PushButton button3;
 
@@ -48,11 +47,11 @@ namespace MeadowApp
 
             UpdateSPIDisplay();
 
-            while(true)
+            while (true)
             {
                 UpdateI2C("Reading temperature");
                 UpdateSPIDisplay();
-                
+
                 Thread.Sleep(100);
             }
         }
@@ -77,11 +76,13 @@ namespace MeadowApp
         {
             graphicsSpi.Clear();
 
-            graphicsSpi.DrawRectangle(0, 0, 240, 240, Color.LawnGreen);
+            graphicsSpi.PenColor = Color.LimeGreen;
 
-            for(int i = 0; i < 6; i++)
+            graphicsSpi.DrawRectangle(0, 0, 240, 240);
+
+            for (int i = 0; i < 6; i++)
             {
-                graphicsSpi.DrawText(5, i * 20 + 5, $"Analog {i+1}: {tempSensors[i].Temperature?.Celsius:0.00}°C");
+                graphicsSpi.DrawText(5, i * 20 + 5, $"Analog {i + 1}: {tempSensors[i].Temperature?.Celsius:0.00}°C");
             }
 
             graphicsSpi.DrawText(5, 8 * 20 + 5, "I2C eeprom " + (i2cAt24cIsWorking ? "passed" : "failed"));
@@ -95,7 +96,8 @@ namespace MeadowApp
         {
             Console.WriteLine($"{message1} {message2} {DateTime.Now}");
 
-            if (i2cIsWorking) {
+            if (i2cIsWorking)
+            {
 
                 graphicsI2c.Clear();
                 graphicsI2c.DrawText(0, 0, "Meadow F7" + DateTime.Now.ToLongTimeString());
@@ -117,27 +119,26 @@ namespace MeadowApp
 
             //---- I2C Bus
             II2cBus i2cBus = null;
-            try 
+            try
             {
                 i2cBus = Device.CreateI2cBus();
                 i2cIsWorking = true;
 
-            } 
-            catch (Exception e) 
+            }
+            catch (Exception e)
             {
                 Console.WriteLine($" Failed to initialize I2C. Err: {e.Message}");
             }
 
             //---- I2C Display
-            if (i2cIsWorking) 
+            if (i2cIsWorking)
             {
                 var ssd1306 = new Ssd1306(i2cBus, 60, Ssd1306.DisplayType.OLED128x32);
                 graphicsI2c = new MicroGraphics(ssd1306)
                 {
                     IgnoreOutOfBoundsPixels = true,
+                    CurrentFont = new Font6x8()
                 };
-                graphicsI2c.CurrentFont = new Font6x8();
-
             }
 
             //---- onboard LED
@@ -149,14 +150,13 @@ namespace MeadowApp
                 bluePwmPin: Device.Pins.OnboardLedBlue);
 
             //---- buttons
-            //button1 = new PushButton(
-            //    device: Device,
-            //    inputPin: Device.Pins.D02,
-            //    resistorMode: ResistorMode.InternalPullDown);
-            //button1.Clicked += (s, e) =>
-            //{
-            //    Console.WriteLine("Button 1 Clicked");
-            //};
+            button1 = new PushButton(
+                inputPin: Device.Pins.D02,
+                resistorMode: ResistorMode.InternalPullDown);
+            button1.Clicked += (s, e) =>
+            {
+                Console.WriteLine("Button 1 Clicked");
+            };
 
             button2 = new PushButton(
                 inputPin: Device.Pins.D06,
@@ -177,59 +177,56 @@ namespace MeadowApp
             //---- SPI Bus
             UpdateI2C("Init SPI bus");
             ISpiBus spiBus = null;
-            try 
+            try
             {
                 var spiConfig = new SpiClockConfiguration(new Meadow.Units.Frequency(48000, Meadow.Units.Frequency.UnitType.Kilohertz), SpiClockConfiguration.Mode.Mode3);
                 spiBus = Device.CreateSpiBus(Device.Pins.SCK, Device.Pins.MOSI, Device.Pins.MISO, spiConfig);
                 spiIsWorking = true;
-            } 
-            catch (Exception e) 
+            }
+            catch (Exception e)
             {
                 Console.WriteLine($" Failed to initialize I2C. Err: {e.Message}");
             }
 
             //---- SPI Display
-            if (spiIsWorking) 
+            if (spiIsWorking)
             {
                 UpdateI2C("Init color display", "ST7789 240x240");
                 var st7789 = new St7789(spiBus: spiBus,
                     chipSelectPin: Device.Pins.D15,
                     dcPin: Device.Pins.D11,
                     resetPin: Device.Pins.D14,
-                    width: 240, height: 240, 
+                    width: 240, height: 240,
                     colorMode: ColorMode.Format12bppRgb444);
 
                 graphicsSpi = new MicroGraphics(st7789);
                 graphicsSpi.CurrentFont = new Font12x20();
-                graphicsSpi.Rotation = RotationType._180Degrees;
             }
 
             //---- I2C EEPROM
-            if (i2cIsWorking) 
+            if (i2cIsWorking)
             {
                 UpdateI2C("Init I2C EEPROM");
                 at24CI2c = new At24Cxx(i2cBus);
             }
 
             //---- SPI EEPROM
-            if (spiIsWorking) 
+            if (spiIsWorking)
             {
                 // TODO: Driver doesn't support SPI yet.
-                //UpdateI2C("Init SPI EEPROM");
-                //at24CSpi = new At24Cxx()
             }
 
             //---- Analog Temp Sensors
             UpdateI2C("Init temp sensors");
 
             // pins
-            var analogPins = new IPin[] 
+            var analogPins = new IPin[]
             {
-                Device.Pins.A00, 
-                Device.Pins.A01, 
-                Device.Pins.A02, 
-                Device.Pins.A03, 
-                Device.Pins.A04, 
+                Device.Pins.A00,
+                Device.Pins.A01,
+                Device.Pins.A02,
+                Device.Pins.A03,
+                Device.Pins.A04,
                 Device.Pins.A05
             };
 
@@ -248,7 +245,7 @@ namespace MeadowApp
 
         async Task UpdateClock()
         {
-             var adapter = Device.NetworkAdapters.Primary<IWiFiNetworkAdapter>();
+            var adapter = Device.NetworkAdapters.Primary<IWiFiNetworkAdapter>();
 
             await adapter.Connect(Secrets.WIFI_NAME, Secrets.WIFI_PASSWORD);
 
@@ -270,7 +267,8 @@ namespace MeadowApp
 
             i2cAt24cIsWorking = data.SequenceEqual(memory);
 
-            for (ushort index = 0; index < 16; index++) {
+            for (ushort index = 0; index < 16; index++)
+            {
                 Thread.Sleep(50);
                 Console.WriteLine("Byte: " + index + ", Value: " + memory[index]);
             }

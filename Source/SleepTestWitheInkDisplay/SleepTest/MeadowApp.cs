@@ -19,7 +19,7 @@ namespace PowerTest
 
         DateTime bootTime;
 
-        TimeSpan sleepTime = TimeSpan.FromSeconds(225); //new TimeSpan(18, 1, 0);
+        TimeSpan sleepTime = TimeSpan.FromSeconds(1); //new TimeSpan(18, 1, 0);
 
         int cycles = 0;
 
@@ -40,7 +40,7 @@ namespace PowerTest
             graphics.CurrentFont = new Font12x16();
             graphics.Rotation = RotationType._270Degrees;
 
-            Device.PlatformOS.SetClock(new DateTime(2023, 6, 23, 10, 50, 0));
+            Device.PlatformOS.SetClock(new DateTime(2023, 6, 23, 16, 10, 0));
             bootTime = DateTime.Now;
 
             return base.Initialize();

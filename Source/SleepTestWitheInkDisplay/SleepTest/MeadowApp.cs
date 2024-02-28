@@ -1,9 +1,9 @@
 ﻿using Meadow;
 using Meadow.Devices;
-using Meadow.Foundation;
 using Meadow.Foundation.Displays;
 using Meadow.Foundation.Graphics;
 using Meadow.Foundation.Leds;
+using Meadow.Peripherals.Displays;
 using Meadow.Peripherals.Leds;
 using System;
 using System.Threading.Tasks;
@@ -19,10 +19,9 @@ namespace PowerTest
 
         DateTime bootTime;
 
-        TimeSpan sleepTime = TimeSpan.FromSeconds(1); //new TimeSpan(18, 1, 0);
+        TimeSpan sleepTime = TimeSpan.FromSeconds(30); //new TimeSpan(18, 1, 0);
 
         int cycles = 0;
-
 
         public override Task Initialize()
         {
@@ -40,7 +39,7 @@ namespace PowerTest
             graphics.CurrentFont = new Font12x16();
             graphics.Rotation = RotationType._270Degrees;
 
-            Device.PlatformOS.SetClock(new DateTime(2023, 6, 23, 16, 10, 0));
+          //  Device.PlatformOS.SetClock(new DateTime(2023, 6, 23, 16, 10, 0));
             bootTime = DateTime.Now;
 
             return base.Initialize();
@@ -53,8 +52,6 @@ namespace PowerTest
             while (true)
             {
                 cycles++;
-
-                await ShowColorPulse(Color.Green, TimeSpan.FromSeconds(2));
 
                 graphics.Clear();
 
@@ -76,15 +73,9 @@ namespace PowerTest
             }
         }
 
-        async Task ShowColorPulse(Color color, TimeSpan duration)
-        {
-            await onboardLed.StartPulse(color, duration / 2);
-            await Task.Delay(duration);
-        }
-
         TimeSpan InceaseSleepTime(TimeSpan timeSpan)
         {
-            return timeSpan + timeSpan;
+            return timeSpan + TimeSpan.FromSeconds(5);
         }
     }
 }

@@ -6,6 +6,13 @@
     <AssemblyName>App</AssemblyName>
   </PropertyGroup>
   <ItemGroup>
+    <None Remove="aisu.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="aisu.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="SimpleJpegDecoder" Version="0.4.0" />
     <PackageReference Include="SimpleJsonSerializer" Version="0.0.2" />
   </ItemGroup>
   <ItemGroup>

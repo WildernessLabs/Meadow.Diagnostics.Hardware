@@ -1,16 +1,19 @@
 ﻿using AISUTesttHarness;
 using Meadow;
 using Meadow.Devices;
-using Meadow.Foundation;
 using Meadow.Foundation.Displays;
 using Meadow.Foundation.Graphics;
+using Meadow.Foundation.Graphics.Buffers;
 using Meadow.Foundation.ICs.EEPROM;
 using Meadow.Foundation.Leds;
 using Meadow.Foundation.Sensors.Buttons;
 using Meadow.Foundation.Sensors.Temperature;
 using Meadow.Hardware;
+using Meadow.Peripherals.Displays;
 using System;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -20,14 +23,14 @@ namespace MeadowApp
     {
         //==== ports and such
         RgbPwmLed onboardLed;
-        AnalogTemperature[] tempSensors = new AnalogTemperature[6];
+        readonly AnalogTemperature[] tempSensors = new AnalogTemperature[6];
 
         //==== drivers
         At24Cxx at24CI2c;
-        At24Cxx at24CSpi;
+        readonly At24Cxx at24CSpi;
 
         //==== push buttons
-        PushButton button1;
+        readonly PushButton button1;
         PushButton button2;
         PushButton button3;
 
@@ -35,14 +38,19 @@ namespace MeadowApp
         bool i2cIsWorking = false;
         bool spiIsWorking = false;
         bool i2cAt24cIsWorking = false;
-        bool spiAt24cIsWorking = false;
+        readonly bool spiAt24cIsWorking = false;
 
         //==== graphics
         MicroGraphics graphicsI2c;
         MicroGraphics graphicsSpi;
 
+        IPixelBuffer aisuLogo;
+
         public override Task Run()
         {
+            ShowSplash();
+            Thread.Sleep(1500);
+
             ValidateI2cEeprom();
 
             UpdateSPIDisplay();
@@ -52,7 +60,7 @@ namespace MeadowApp
                 UpdateI2C("Reading temperature");
                 UpdateSPIDisplay();
 
-                Thread.Sleep(100);
+                Thread.Sleep(1000);
             }
         }
 
@@ -72,13 +80,42 @@ namespace MeadowApp
             */
         }
 
+        void ShowSplash()
+        {
+            var sw = new System.Diagnostics.Stopwatch();
+            sw.Start();
+
+            aisuLogo ??= LoadAisuLogo();
+
+            graphicsSpi.DrawBuffer(0, 0, aisuLogo);
+            graphicsSpi.Show();
+
+            /*
+            for (double a = 0; a < 1; a += 0.05)
+            {
+                graphicsSpi.DrawBufferBlended(0, 0, aisuLogo, a, Color.Black);
+                graphicsSpi.Show();
+            }
+
+            for (double a = 1; a > 0; a -= 0.05)
+            {
+                graphicsSpi.DrawBufferBlended(0, 0, aisuLogo, a, Color.Black);
+                graphicsSpi.Show();
+            }
+            */
+
+            sw.Stop();
+            Console.WriteLine($"Splash screen took {sw.ElapsedMilliseconds}ms");
+            // Console.WriteLine($"fps: {42000 / sw.ElapsedMilliseconds}");
+        }
+
         void UpdateSPIDisplay()
         {
             graphicsSpi.Clear();
 
             graphicsSpi.PenColor = Color.LimeGreen;
 
-            graphicsSpi.DrawRectangle(0, 0, 240, 240);
+            graphicsSpi.DrawRectangle(0, 0, graphicsSpi.Width, graphicsSpi.Height);
 
             for (int i = 0; i < 6; i++)
             {
@@ -98,9 +135,8 @@ namespace MeadowApp
 
             if (i2cIsWorking)
             {
-
                 graphicsI2c.Clear();
-                graphicsI2c.DrawText(0, 0, "Meadow F7" + DateTime.Now.ToLongTimeString());
+                graphicsI2c.DrawText(0, 0, "Meadow F7 " + DateTime.Now.ToLongTimeString());
                 graphicsI2c.DrawText(0, 8, message1);
                 graphicsI2c.DrawText(0, 16, message2);
                 graphicsI2c.DrawText(0, 24, "Analog/I2C/SPI/UART");
@@ -150,13 +186,13 @@ namespace MeadowApp
                 bluePwmPin: Device.Pins.OnboardLedBlue);
 
             //---- buttons
-            button1 = new PushButton(
-                inputPin: Device.Pins.D02,
-                resistorMode: ResistorMode.InternalPullDown);
-            button1.Clicked += (s, e) =>
-            {
-                Console.WriteLine("Button 1 Clicked");
-            };
+            /*     button1 = new PushButton(
+                     inputPin: Device.Pins.D02,
+                     resistorMode: ResistorMode.InternalPullDown);
+                 button1.Clicked += (s, e) =>
+                 {
+                     Console.WriteLine("Button 1 Clicked");
+                 }; */
 
             button2 = new PushButton(
                 inputPin: Device.Pins.D06,
@@ -274,6 +310,34 @@ namespace MeadowApp
             }
 
             return i2cAt24cIsWorking;
+        }
+
+        IPixelBuffer LoadAisuLogo()
+        {
+            var data = LoadResource("aisu.jpg");
+
+            SimpleJpegDecoder.JpegDecoder jpegDecoder = new SimpleJpegDecoder.JpegDecoder();
+
+            var image = jpegDecoder.DecodeJpeg(data);
+
+            var buffer = new BufferRgb888(jpegDecoder.Width, jpegDecoder.Height, image);
+
+            return buffer;
+        }
+
+        byte[] LoadResource(string filename)
+        {
+            var assembly = Assembly.GetExecutingAssembly();
+            var resourceName = $"AISUTestHarness.{filename}";
+
+            using (Stream stream = assembly.GetManifestResourceStream(resourceName))
+            {
+                using (var ms = new MemoryStream())
+                {
+                    stream.CopyTo(ms);
+                    return ms.ToArray();
+                }
+            }
         }
     }
 }

@@ -1,2 +1,5 @@
-﻿MonoControl:
+﻿Deploy:
+  NoLink: [ Meadow, Meadow.Core ]
+
+MonoControl:
     Options: --jit

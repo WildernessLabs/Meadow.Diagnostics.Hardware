@@ -19,7 +19,7 @@ using System.Threading.Tasks;
 
 namespace MeadowApp
 {
-    public class MeadowApp : App<F7FeatherV2>
+    public class MeadowApp : App<F7FeatherV1>
     {
         //==== ports and such
         RgbPwmLed onboardLed;
